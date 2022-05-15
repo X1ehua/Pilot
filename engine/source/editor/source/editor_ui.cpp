@@ -687,12 +687,18 @@ namespace Pilot
             ImGui::EndMenuBar();
         }
 
-        const ImVec4 white    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
         Vector3      cam_pos  = m_tmp_uistate->m_editor_camera->position();
-        Vector2      cam_fov  = m_tmp_uistate->m_editor_camera->getFOV();
+        //const float  r        = 0x6a / 255.0f; // 0x6a275b
+        //const float  g        = 0x27 / 255.0f;
+        //const float  b        = 0x5b / 255.0f;
+        //const ImVec4 purple   = ImVec4(0.41, 0.15, 0.36, 1.0f);
 
-        ImGui::TextColored(white, "FPS %d", PilotEngine::getInstance().getFPS());
-        ImGui::TextColored(white, "CamPos: %.1f %.1f %.1f", cam_pos.x, cam_pos.y, cam_pos.z);
+        /* TODO: 诡异的颜色错误：
+         *       1. 下面第一行如使用 0xff00ff 则显示为 0xffbeff
+         *       2. 下面第二行深紫色（上面的 purple）不生效，显示为主体白色、边缘混杂少许浅紫色
+         */
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "FPS %d", PilotEngine::getInstance().getFPS());
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "CamPos %.1f %.1f %.1f", cam_pos.x, cam_pos.y, cam_pos.z);
         /*
 		if (!m_is_editor_mode)
         {

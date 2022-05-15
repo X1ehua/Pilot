@@ -9,9 +9,9 @@
 struct DirectionalLight
 {
     highp vec3 direction;
-    lowp float _padding_direction;
+    highp float _padding_direction;
     highp vec3 color;
-    lowp float _padding_color;
+    highp float _padding_color;
 };
 
 struct PointLight
@@ -19,16 +19,16 @@ struct PointLight
     highp vec3  position;
     highp float radius;
     highp vec3  intensity;
-    lowp float  _padding_intensity;
+    highp float  _padding_intensity;
 };
 
 layout(set = 0, binding = 2) readonly buffer _mesh_per_frame
 {
     highp mat4       proj_view_matrix;
     highp vec3       camera_position;
-    lowp float       _padding_camera_position;
+    highp float       _padding_camera_position;
     highp vec3       ambient_light;
-    lowp float       _padding_ambient_light;
+    highp float       _padding_ambient_light;
     highp uint       point_light_num;
     uint             _padding_point_light_num_1;
     uint             _padding_point_light_num_2;
@@ -59,15 +59,16 @@ highp vec2 MappingUV2Viewport(highp vec2 full_screen_uv);
 void main()
 {
     // Tweakable parameters 可调参数
-    lowp float frequency        = 30.0;
-    lowp float waveSpeed        = 5.0;
-    lowp float waveStrength     = 0.025; // default 0.2
-    lowp float waveRadius       = 5.0;
-    lowp float sunlightStrength = 5.0;
-    lowp vec4  sunlightColor    = vec4(1.0, 0.91, 0.75, 1.0);
-	lowp vec2  centerCoord      = vec2(0.75, 0.1);
+    highp float frequency        = 30.0;
+    highp float waveSpeed        = 5.0;
+    highp float waveStrength     = 0.025; // default 0.2
+    highp float waveRadius       = 0.2;
+    highp float waveEllipticity  = 1.5; // 椭圆率系数
+    highp float sunlightStrength = 5.0;
+    highp vec4  sunlightColor    = vec4(1.0, 0.91, 0.75, 1.0);
+	highp vec2  centerCoord      = vec2(0.75, 0.1);
 
-	// lowp float aspectRatio   = screen_resolution.x / screen_resolution.y;
+	// highp float aspectRatio   = screen_resolution.x / screen_resolution.y;
     // ivec2 texSize = textureSize(input_texture_sampler, 0); // texSize: 1280x766.5882 ?
 
     /*
@@ -86,23 +87,22 @@ void main()
      * 导致真正的游戏画面被大幅缩小 & 变形
      */
     highp vec2 uv_in_viewport = MappingUV2Viewport(in_texcoord.xy);
-    lowp vec2  distVec       = uv_in_viewport - MappingUV2Viewport(centerCoord);
-	           distVec.x    *= 0.8; // 椭圆
-	//         distVec.x    *= aspectRatio; // 椭圆 > 圆
+    highp vec2  distVec       = uv_in_viewport - MappingUV2Viewport(centerCoord);
+	           distVec.x    /= waveEllipticity; // 椭圆率系数
 
     // if (waveSpeed > 0.0) {
 	//     out_color = texture(input_texture_sampler, in_texcoord);
     //     return;
     // }
 
-    lowp float distance      = length(distVec) * waveRadius; // length: 0.0 ~ 1.0
-    lowp float iTime         = time.x;
+    highp float distance      = length(distVec) / waveRadius; // length: 0.0 ~ 1.0
+    highp float iTime         = time.x;
 
-	lowp float multiplier    = distance < 1.0
+	highp float multiplier    = distance < 1.0
                         ? ((distance-1.0)*(distance-1.0)) : 0.0;
 
-	lowp float modifiedTime  = iTime * waveSpeed;
-	lowp float addend        = ( sin(frequency*distance-modifiedTime) + 1.0)
+	highp float modifiedTime  = iTime * waveSpeed;
+	highp float addend        = ( sin(frequency*distance-modifiedTime) + 1.0)
                         * waveStrength
                         * multiplier;
 
@@ -129,7 +129,7 @@ void main()
     // highp vec4 prevColor = texture(input_texture_sampler, newTexCoord * 0.9);
 
     /* 当前采样到的 pixel 超出实际 viewport 范围时，左移一个 pixel 进行采样 */
-    lowp float max_x = 958.0 - 2.0;
+    highp float max_x = 958.0 - 2.0;
     if (newTexCoord.x * 1280.0 > max_x) {
         newTexCoord.x = max_x / 1280.0;
     }
