@@ -29,18 +29,20 @@ bool Pilot::PVulkanManager::initializeRenderPass()
     m_point_light_shadow_pass.postInitialize();
     m_directional_light_shadow_pass.postInitialize();
 
-    m_tone_mapping_pass.initialize(m_main_camera_pass.getRenderPass(), m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);
+    m_tone_mapping_pass.initialize(m_main_camera_pass.getRenderPass(),
+                                   m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);
 
-    m_color_grading_pass.initialize(m_main_camera_pass.getRenderPass(), m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
+    m_color_grading_pass.initialize(m_main_camera_pass.getRenderPass(),
+                                    m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
 
-    // Sven modify
-    m_blur_pass.initialize(
-        m_main_camera_pass.getRenderPass(),
-                           m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]); 
+    m_experimental_pass.initialize(m_main_camera_pass.getRenderPass(),
+                                   m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]); 
 
     m_ui_pass.initialize(m_main_camera_pass.getRenderPass());
 
-    //m_combine_ui_pass.initialize(m_main_camera_pass.getRenderPass(), m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd], m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
+    // m_combine_ui_pass.initialize(m_main_camera_pass.getRenderPass(),
+    //                              m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd],
+    //                              m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
     m_combine_ui_pass.initialize(m_main_camera_pass.getRenderPass(),
                                  m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even],
                                  m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);

@@ -23,11 +23,15 @@ bool Pilot::PVulkanManager::recreateSwapChain()
     m_vulkan_context.createFramebufferImageAndView();
 
     m_main_camera_pass.updateAfterFramebufferRecreate();
-    m_tone_mapping_pass.updateAfterFramebufferRecreate(m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);
-    m_color_grading_pass.updateAfterFramebufferRecreate(m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
-    m_blur_pass.updateAfterFramebufferRecreate(
-        m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]); // Sven modify
-    //m_combine_ui_pass.updateAfterFramebufferRecreate(m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd], m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
+    m_tone_mapping_pass.updateAfterFramebufferRecreate(
+        m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);
+    m_color_grading_pass.updateAfterFramebufferRecreate(
+        m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
+    m_experimental_pass.updateAfterFramebufferRecreate(
+        m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);
+    //m_combine_ui_pass.updateAfterFramebufferRecreate(
+    //  m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd],
+    //  m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even]);
     m_combine_ui_pass.updateAfterFramebufferRecreate(
         m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_even],
         m_main_camera_pass.getFramebufferImageViews()[_main_camera_pass_backup_buffer_odd]);

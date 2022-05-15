@@ -41,8 +41,7 @@ namespace Pilot
         void setupDescriptorSet();
     };
 
-    // Sven modify
-    class PBlurPass : public PRenderPassBase
+    class PExperimentalPass : public PRenderPassBase
     {
     public:
         void initialize(VkRenderPass render_pass, VkImageView input_attachment);
@@ -107,7 +106,7 @@ namespace Pilot
         _main_camera_subpass_forward_lighting,
         _main_camera_subpass_tone_mapping,
         _main_camera_subpass_color_grading,
-        _main_camera_subpass_blur,
+        _main_camera_subpass_experimental,
         _main_camera_subpass_ui,
         _main_camera_subpass_combine_ui,
         _main_camera_subpass_count
@@ -154,7 +153,7 @@ namespace Pilot
 
         void draw(PColorGradingPass& color_grading_pass,
                   PToneMappingPass&  tone_mapping_pass,
-                  PBlurPass&         blur_pass, //Sven modify
+                  PExperimentalPass& experimental_pass,
                   PUIPass&           ui_pass,
                   PCombineUIPass&    combine_ui_pass,
                   uint32_t           current_swapchain_image_index,

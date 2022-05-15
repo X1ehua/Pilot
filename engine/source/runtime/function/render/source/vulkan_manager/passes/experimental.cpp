@@ -4,15 +4,14 @@
 #include "runtime/function/render/include/render/vulkan_manager/vulkan_passes.h"
 #include "runtime/function/render/include/render/vulkan_manager/vulkan_util.h"
 
-//#include <post_process_vert.h>
-#include <blur_vert.h>
-#include <blur_frag.h>
+#include <experimental_vert.h>
+#include <experimental_frag.h>
 
 // #include<windows.h>
 
 namespace Pilot
 {
-    void PBlurPass::initialize(VkRenderPass render_pass, VkImageView input_attachment)
+    void PExperimentalPass::initialize(VkRenderPass render_pass, VkImageView input_attachment)
     {
         _framebuffer.render_pass = render_pass;
         setupDescriptorSetLayout();
@@ -21,7 +20,7 @@ namespace Pilot
         updateAfterFramebufferRecreate(input_attachment);
     }
 
-    void PBlurPass::setupDescriptorSetLayout()
+    void PExperimentalPass::setupDescriptorSetLayout()
     {
         _descriptor_infos.resize(1);
 
@@ -67,7 +66,7 @@ namespace Pilot
             throw std::runtime_error("create post process global layout");
         }
     }
-    void PBlurPass::setupPipelines()
+    void PExperimentalPass::setupPipelines()
     {
         _render_pipelines.resize(1);
 
@@ -85,9 +84,9 @@ namespace Pilot
         }
 
         VkShaderModule vert_shader_module =
-            PVulkanUtil::createShaderModule(m_p_vulkan_context->_device, BLUR_VERT);
+            PVulkanUtil::createShaderModule(m_p_vulkan_context->_device, EXPERIMENTAL_VERT);
         VkShaderModule frag_shader_module =
-            PVulkanUtil::createShaderModule(m_p_vulkan_context->_device, BLUR_FRAG);
+            PVulkanUtil::createShaderModule(m_p_vulkan_context->_device, EXPERIMENTAL_FRAG);
 
         VkPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info {};
         vert_pipeline_shader_stage_create_info.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -198,7 +197,7 @@ namespace Pilot
         pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
         pipelineInfo.layout              = _render_pipelines[0].layout;
         pipelineInfo.renderPass          = _framebuffer.render_pass;
-        pipelineInfo.subpass             = _main_camera_subpass_blur;
+        pipelineInfo.subpass             = _main_camera_subpass_experimental;
         pipelineInfo.basePipelineHandle  = VK_NULL_HANDLE;
         pipelineInfo.pDynamicState       = &dynamic_state_create_info;
 
@@ -215,7 +214,7 @@ namespace Pilot
         vkDestroyShaderModule(m_p_vulkan_context->_device, vert_shader_module, nullptr);
         vkDestroyShaderModule(m_p_vulkan_context->_device, frag_shader_module, nullptr);
     }
-    void PBlurPass::setupDescriptorSet()
+    void PExperimentalPass::setupDescriptorSet()
     {
         VkDescriptorSetAllocateInfo post_process_global_descriptor_set_alloc_info;
         post_process_global_descriptor_set_alloc_info.sType          = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -232,7 +231,7 @@ namespace Pilot
         }
     }
 
-    void PBlurPass::updateAfterFramebufferRecreate(VkImageView input_attachment)
+    void PExperimentalPass::updateAfterFramebufferRecreate(VkImageView input_attachment)
     {
         VkDescriptorImageInfo post_process_per_frame_input_attachment_info = {};
         post_process_per_frame_input_attachment_info.sampler =
@@ -240,7 +239,8 @@ namespace Pilot
         post_process_per_frame_input_attachment_info.imageView   = input_attachment;
         post_process_per_frame_input_attachment_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-        VkWriteDescriptorSet post_process_descriptor_writes_info[3];
+        // VkWriteDescriptorSet post_process_descriptor_writes_info[3];
+        VkWriteDescriptorSet post_process_descriptor_writes_info[2];
 
         VkWriteDescriptorSet& post_process_descriptor_input_attachment_write_info =
             post_process_descriptor_writes_info[0];
@@ -252,26 +252,6 @@ namespace Pilot
         post_process_descriptor_input_attachment_write_info.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; 
         post_process_descriptor_input_attachment_write_info.descriptorCount = 1;
         post_process_descriptor_input_attachment_write_info.pImageInfo = &post_process_per_frame_input_attachment_info;
-
-        //add Infinite Tsukuyomi texture
-        VkDescriptorImageInfo color_grading_infinite_tsukuyomi_image_info = {};
-        color_grading_infinite_tsukuyomi_image_info.sampler =
-            PVulkanUtil::getOrCreateLinearSampler(m_p_vulkan_context->_physical_device, m_p_vulkan_context->_device);
-        color_grading_infinite_tsukuyomi_image_info.imageView =
-            m_p_global_render_resource->_blur_resource._infinite_tsukuyomi_texture_image_view;
-        color_grading_infinite_tsukuyomi_image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-        VkWriteDescriptorSet& post_process_descriptor_infinite_tsukuyomi_write_info =
-            post_process_descriptor_writes_info[1];
-        post_process_descriptor_infinite_tsukuyomi_write_info.sType  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        post_process_descriptor_infinite_tsukuyomi_write_info.pNext  = NULL;
-        post_process_descriptor_infinite_tsukuyomi_write_info.dstSet = _descriptor_infos[0].descriptor_set;
-        post_process_descriptor_infinite_tsukuyomi_write_info.dstBinding = 1;
-        post_process_descriptor_infinite_tsukuyomi_write_info.dstArrayElement = 0;
-        post_process_descriptor_infinite_tsukuyomi_write_info.descriptorType =
-            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        post_process_descriptor_infinite_tsukuyomi_write_info.descriptorCount = 1;
-        post_process_descriptor_infinite_tsukuyomi_write_info.pImageInfo = &color_grading_infinite_tsukuyomi_image_info;
 
         //add ubo info
         VkDescriptorBufferInfo mesh_perframe_storage_buffer_info = {};
@@ -285,7 +265,7 @@ namespace Pilot
                m_p_global_render_resource->_storage_buffer._max_storage_buffer_range);
 
         VkWriteDescriptorSet& mesh_descriptor_writes_info =
-            post_process_descriptor_writes_info[2];
+            post_process_descriptor_writes_info[1];
 
         mesh_descriptor_writes_info.sType                                 = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         mesh_descriptor_writes_info.pNext                                 = NULL;
@@ -305,19 +285,17 @@ namespace Pilot
                                NULL);
     }
 
-    void PBlurPass::draw(MeshPerframeStorageBufferObject& m_mesh_perframe_storage_buffer_object)
+    void PExperimentalPass::draw(MeshPerframeStorageBufferObject& m_mesh_perframe_storage_buffer_object)
     {
         if (m_render_config._enable_debug_untils_label)
         {
             VkDebugUtilsLabelEXT label_info = {
-                VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT, NULL, "Blur", {1.0f, 1.0f, 1.0f, 1.0f}};
+                VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT, NULL, "Experimental", {1.0f, 1.0f, 1.0f, 1.0f}};
             m_p_vulkan_context->_vkCmdBeginDebugUtilsLabelEXT(m_command_info._current_command_buffer, &label_info);
         }
 
-        //add extra info for blur effects
-        double time         = glfwGetTime();
-        // double time_decimal = time - floor(time);
-        VkExtent2D v2       = m_p_vulkan_context->_swapchain_extent;
+        // Extra info for experimental effects
+        double time   = glfwGetTime();
 
         m_mesh_perframe_storage_buffer_object.time                     = time;
         m_mesh_perframe_storage_buffer_object.screen_resolution        = glm::vec4(float(m_p_vulkan_context->_swapchain_extent.width),
@@ -348,7 +326,7 @@ namespace Pilot
 
         uint32_t dynamic_offsets[1] = {perframe_dynamic_offset};
 
-        //Sven modify: use full screen view port
+        // Use fullscreen view port
         VkViewport viewport = {0.0,
                                0.0,
                                static_cast<float>(m_p_vulkan_context->_swapchain_extent.width),
@@ -365,7 +343,7 @@ namespace Pilot
         m_p_vulkan_context->_vkCmdSetViewport(m_command_info._current_command_buffer, 0, 1, &m_command_info._viewport);
         m_p_vulkan_context->_vkCmdSetScissor( m_command_info._current_command_buffer, 0, 1, &m_command_info._scissor);
 
-        //Sven modify: add dynamic ubo data
+        // Add dynamic UBO data
         //m_p_vulkan_context->_vkCmdBindDescriptorSets(m_command_info._current_command_buffer,
         //                                             VK_PIPELINE_BIND_POINT_GRAPHICS,
         //                                             _render_pipelines[0].layout,

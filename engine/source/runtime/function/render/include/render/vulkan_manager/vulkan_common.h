@@ -38,21 +38,22 @@ namespace Pilot
     struct MeshPerframeStorageBufferObject
     {
         glm::mat4                   proj_view_matrix;
+
         glm::vec3                   camera_position;
         float                       time;
-        // float                       _padding_camera_position; // 与上面的 vec3 对齐为 4 个 float
+
         Vector3                     ambient_light;
         float                       _padding_ambient_light; // 与上面的 vec3 对齐为 4 个 float
+
         uint32_t                    point_light_num;
         uint32_t                    _padding_point_light_num_1;
         uint32_t                    _padding_point_light_num_2;
         uint32_t                    _padding_point_light_num_3;
+
         VulkanScenePointLight       scene_point_lights[m_max_point_light_count];
         VulkanSceneDirectionalLight scene_directional_light;
         glm::mat4                   directional_light_proj_view;
 
-        //Sven modify: add more info for post processing
-        // glm::vec4                   time;
         glm::vec4                   screen_resolution;
         glm::vec4                   editor_screen_resolution;
     };
