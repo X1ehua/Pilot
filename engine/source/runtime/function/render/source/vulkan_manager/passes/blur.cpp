@@ -8,7 +8,7 @@
 #include <blur_vert.h>
 #include <blur_frag.h>
 
-#include<windows.h>
+// #include<windows.h>
 
 namespace Pilot
 {
@@ -253,6 +253,7 @@ namespace Pilot
         post_process_descriptor_input_attachment_write_info.descriptorCount = 1;
         post_process_descriptor_input_attachment_write_info.pImageInfo = &post_process_per_frame_input_attachment_info;
 
+        /*
         //add Infinite Tsukuyomi texture
         VkDescriptorImageInfo color_grading_infinite_tsukuyomi_image_info = {};
         color_grading_infinite_tsukuyomi_image_info.sampler =
@@ -272,6 +273,7 @@ namespace Pilot
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         post_process_descriptor_infinite_tsukuyomi_write_info.descriptorCount = 1;
         post_process_descriptor_infinite_tsukuyomi_write_info.pImageInfo = &color_grading_infinite_tsukuyomi_image_info;
+        */
 
         //add ubo info
         VkDescriptorBufferInfo mesh_perframe_storage_buffer_info = {};

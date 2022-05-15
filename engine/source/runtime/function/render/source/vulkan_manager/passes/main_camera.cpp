@@ -2253,6 +2253,7 @@ namespace Pilot
         m_p_vulkan_context->_vkCmdEndRenderPass(m_command_info._current_command_buffer);
     }
 
+    /*
     void PMainCameraPass::drawForward(PColorGradingPass& color_grading_pass,
                                       PToneMappingPass&  tone_mapping_pass,
                                       PUIPass&           ui_pass,
@@ -2343,6 +2344,7 @@ namespace Pilot
 
         m_p_vulkan_context->_vkCmdEndRenderPass(m_command_info._current_command_buffer);
     }
+    */
 
     void PMainCameraPass::drawMeshGbuffer()
     {
