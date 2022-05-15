@@ -316,13 +316,10 @@ namespace Pilot
 
         //add extra info for blur effects
         double time         = glfwGetTime();
-        double time_decimal = time - floor(time);
+        // double time_decimal = time - floor(time);
         VkExtent2D v2       = m_p_vulkan_context->_swapchain_extent;
 
-        m_mesh_perframe_storage_buffer_object.time                     = glm::vec4(time,
-                                                                                   time_decimal,
-                                                                                   time_decimal / 20.0f,
-                                                                                   time);
+        m_mesh_perframe_storage_buffer_object.time                     = time;
         m_mesh_perframe_storage_buffer_object.screen_resolution        = glm::vec4(float(m_p_vulkan_context->_swapchain_extent.width),
                                                                                    float(m_p_vulkan_context->_swapchain_extent.height),
                                                                                    0.0f,

@@ -61,7 +61,11 @@ namespace Pilot
         XLOG_INFO("content-scale: %.2f", content_scale);
 
         io.Fonts->AddFontFromFileTTF(ConfigManager::getInstance().getEditorFontPath().generic_string().data(),
+#ifdef __APPLE__
+                                     content_scale * 16,
+#else
                                      16, // content_scale * 16,
+#endif
                                      nullptr,
                                      nullptr);
         io.Fonts->Build();

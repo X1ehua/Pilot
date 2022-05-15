@@ -1,6 +1,7 @@
 #version 310 es
 
 #extension GL_GOOGLE_include_directive : enable
+// #extension GL_EXT_debug_printf      : enable
 
 #include "constants.h"
 
@@ -13,11 +14,13 @@ layout(location = 0) out highp vec4 out_color;
 void main()
 {
     highp ivec2 lut_tex_size = textureSize(color_grading_lut_texture_sampler, 0);
-    highp float _COLORS      = float(lut_tex_size.y);
+    highp float N            = float(lut_tex_size.y); // 16x16x16 or 32x32x16
 
-    highp vec4 color       = subpassLoad(in_color).rgba;
-    
-    // texture(color_grading_lut_texture_sampler, uv)
+    highp vec4 color         = subpassLoad(in_color).rgba;
 
-    out_color = color;
+    highp float u = (floor(color.b * N) * N + color.r * (N - 1.0)) / (N * N - 1.0);
+    highp float v = color.g;
+
+    out_color = texture(color_grading_lut_texture_sampler, vec2(u, v));
+    // out_color = color;
 }
