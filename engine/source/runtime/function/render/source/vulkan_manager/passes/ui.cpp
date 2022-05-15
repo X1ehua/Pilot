@@ -4,6 +4,7 @@
 #include "runtime/function/render/include/render/vulkan_manager/vulkan_passes.h"
 #include "runtime/function/render/include/render/vulkan_manager/vulkan_util.h"
 #include "runtime/resource/config_manager/config_manager.h"
+#include "runtime/core/base/macro.h" // LOG_INFO
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
@@ -31,6 +32,16 @@ namespace Pilot
         m_surface_ui             = NULL;
     }
 
+    void XLOG_INFO(const char* fmt, ...) {
+        const int BUF_SIZE      = 1024 * 32;
+        char      buf[BUF_SIZE] = {0};
+        va_list args;
+        va_start(args, fmt);
+        int ret = vsnprintf(buf, BUF_SIZE - 3, fmt, args);
+        va_end(args);
+        LOG_INFO(buf);
+    }
+
     void PUIPass::setSurfaceUI(void* surface_ui)
     {
         assert(NULL == m_surface_ui);
@@ -47,9 +58,10 @@ namespace Pilot
         float content_scale = surface_ui_content_scale(m_surface_ui);
         windowContentScaleUpdate(content_scale);
         glfwSetWindowContentScaleCallback(m_p_vulkan_context->_window, windowContentScaleCallback);
+        XLOG_INFO("content-scale: %.2f", content_scale);
 
         io.Fonts->AddFontFromFileTTF(ConfigManager::getInstance().getEditorFontPath().generic_string().data(),
-                                     content_scale * 16,
+                                     16, // content_scale * 16,
                                      nullptr,
                                      nullptr);
         io.Fonts->Build();

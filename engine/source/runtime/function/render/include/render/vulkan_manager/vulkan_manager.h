@@ -162,6 +162,10 @@ namespace Pilot
         // load color grading
         void updateGlobalTexturesForColorGrading(PColorGradingResourceData& color_grading_resource_data);
 
+		// TODO: Not used?
+        //Sven modify
+        void updateGlobalTexturesForBlur(PBlurResourceData& blur_resource_data);
+
         void initializeCubeMap(VkImage&             image,
                                VkImageView&         image_view,
                                VmaAllocation&       image_allocation,
