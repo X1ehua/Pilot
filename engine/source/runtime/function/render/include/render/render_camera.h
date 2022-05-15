@@ -77,8 +77,21 @@ namespace Pilot
             yaw.fromAngleAxis(Radian(delta.y), Z);
 
             m_rotation = pitch * m_rotation * yaw;
-
             m_invRotation = m_rotation.conjugate();
+
+            // m_rotation: 0.6742 0.0066 -0.0073 0.7385
+            //printf("pitch: %.4f %.4f %.4f, yaw: %.4f %.4f %.4f %.4f, m_rotation: %.4f %.4f %.4f %.4f\n", \
+                   pitch.w, \
+                   pitch.x, \
+                   pitch.y, \
+                   pitch.z, \
+                   yaw.x,   \
+                   yaw.y,   \
+                   yaw.z,   \
+                   m_rotation.w, \
+                   m_rotation.x, \
+                   m_rotation.y, \
+                   m_rotation.z);
         }
         void zoom(float offset) // > 0 = zoom in (decrease FOV by <offset> angles)
         {

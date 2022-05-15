@@ -687,7 +687,14 @@ namespace Pilot
             ImGui::EndMenuBar();
         }
 
-        if (!m_is_editor_mode)
+        const ImVec4 white    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        Vector3      cam_pos  = m_tmp_uistate->m_editor_camera->position();
+        Vector2      cam_fov  = m_tmp_uistate->m_editor_camera->getFOV();
+
+        ImGui::TextColored(white, "FPS %d", PilotEngine::getInstance().getFPS());
+        ImGui::TextColored(white, "CamPos: %.1f %.1f %.1f", cam_pos.x, cam_pos.y, cam_pos.z);
+        /*
+		if (!m_is_editor_mode)
         {
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Press Left Alt key to display the mouse cursor!");
         }
@@ -696,6 +703,7 @@ namespace Pilot
             ImGui::TextColored(
                 ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Current editor camera move speed: [%f]", m_camera_speed);
         }
+		*/
 
         auto menu_bar_rect = ImGui::GetCurrentWindow()->MenuBarRect();
 

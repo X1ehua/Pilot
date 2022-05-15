@@ -29,6 +29,9 @@ namespace Pilot
 
     void Character::tick()
     {
+        // if (g_is_editor_mode) // Sven's fork? not modified BY HIM?
+        //     return;
+
         if (m_character_object == nullptr)
             return;
 
