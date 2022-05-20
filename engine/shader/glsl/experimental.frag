@@ -24,23 +24,25 @@ struct PointLight
 
 layout(set = 0, binding = 0) uniform sampler2D input_texture_sampler;
 
-layout(set = 0, binding = 2) readonly buffer _mesh_per_frame
+layout(set = 0, binding = 1) readonly buffer _mesh_per_frame
 {
     highp mat4       proj_view_matrix;
     highp vec3       camera_position;
     highp float      time;
-    // highp float       _padding_camera_position;
+//  highp float       _padding_camera_position;
+
     highp vec3       ambient_light;
-    highp float       _padding_ambient_light;
+    highp float      _padding_ambient_light;
+
     highp uint       point_light_num;
     uint             _padding_point_light_num_1;
     uint             _padding_point_light_num_2;
     uint             _padding_point_light_num_3;
+
     PointLight       scene_point_lights[m_max_point_light_count];
     DirectionalLight scene_directional_light;
     highp mat4       directional_light_proj_view;
 
-    // highp vec4       time;
     highp vec4       screen_resolution;
     highp vec4       editor_screen_resolution;
 };
