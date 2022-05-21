@@ -32,7 +32,8 @@ namespace Pilot
         m_surface_ui             = NULL;
     }
 
-    void XLOG_INFO(const char* fmt, ...) {
+    void XLOG_INFO(const char* fmt, ...)
+    {
         const int BUF_SIZE      = 1024 * 32;
         char      buf[BUF_SIZE] = {0};
         va_list args;

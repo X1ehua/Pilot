@@ -5,7 +5,6 @@
 #include "constants.h"
 #include "gbuffer.h"
 
-
 struct DirectionalLight
 {
     highp vec3 direction;
@@ -47,7 +46,10 @@ layout(set = 0, binding = 1) readonly buffer _mesh_per_frame
     highp vec4       editor_screen_resolution;
 };
 
-layout(input_attachment_index = 0, set = 0, binding = 0) uniform highp subpassInput in_color;
+/* Not used.
+ * 疑问：在 blur.frag 中，此 in_color 与 sampler2D input_texture_sampler 为何都使用 binding 0 ?
+ */
+// layout(input_attachment_index = 0, set = 0, binding = 0) uniform highp subpassInput in_color;
 
 /* in_texcoord 范围：左上至右下 (0, 0) ~ (1, 1) */
 layout(location = 0) in  highp vec2 in_texcoord;
@@ -59,7 +61,7 @@ highp vec2 MappingUV2Viewport(highp vec2 full_screen_uv);
 
 void main()
 {
-    // Tweakable parameters 可调参数
+    // Tweakable parameters 可微调的参数
     highp float frequency        = 30.0;
     highp float waveSpeed        = 5.0;
     highp float waveStrength     = 0.025; // default 0.2
@@ -94,13 +96,13 @@ void main()
     //     return;
     // }
 
-    highp vec2 distVec       = uv_in_viewport - MappingUV2Viewport(centerCoord);
-	           distVec.x    /= waveEllipticity; // 椭圆率系数
+    highp vec2 distanceVec    = uv_in_viewport - MappingUV2Viewport(centerCoord);
+	           distanceVec.x /= waveEllipticity; // 椭圆率系数
 
-    highp float distance      = length(distVec) / waveRadius; // length() 返回值范围 0.0 ~ 1.0
-	highp float multiplier    = distance < 1.0 ? ((distance-1.0)*(distance-1.0)) : 0.0;
+    highp float distance      = length(distanceVec) / waveRadius; // length() 返回值范围 0.0 ~ 1.0
+	highp float multiplier    = distance < 1.0 ? ((distance - 1.0) * (distance - 1.0)) : 0.0;
 	highp float modifiedTime  = time * waveSpeed;
-	highp float addend        = ( sin(frequency*distance-modifiedTime) + 1.0 )
+	highp float addend        = ( sin(frequency * distance - modifiedTime) + 1.0 )
                               * waveStrength
                               * multiplier;
 
@@ -109,7 +111,8 @@ void main()
 
     /* 当前采样到的 pixel 超出实际 viewport 范围时，左移一个 pixel 进行采样。否则会出现异常的纯黑色块 */
     highp float max_x = 958.0 - 2.0; // Hard-code: 游戏画面 x 在 PilotEditor 中的范围: 291~958
-    if (newTexCoord.x * 1280.0 > max_x) {
+    if (newTexCoord.x * 1280.0 > max_x)
+    {
         newTexCoord.x = max_x / 1280.0;
     }
     out_color = texture(input_texture_sampler, newTexCoord) + colorToAdd;

@@ -23,6 +23,7 @@ namespace Pilot
 
     void PExperimentalPass::setupDescriptorSetLayout()
     {
+        // std::vector<Descriptor>     _descriptor_infos;
         _descriptor_infos.resize(1);
 
         //VkDescriptorSetLayoutBinding post_process_global_layout_bindings[3] = {};
@@ -32,7 +33,7 @@ namespace Pilot
         VkDescriptorSetLayoutBinding& post_process_global_layout_input_attachment_binding =
             post_process_global_layout_bindings[0];
         post_process_global_layout_input_attachment_binding.binding         = 0;
-        post_process_global_layout_input_attachment_binding.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        post_process_global_layout_input_attachment_binding.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         post_process_global_layout_input_attachment_binding.descriptorCount = 1;
         post_process_global_layout_input_attachment_binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
 
@@ -224,6 +225,7 @@ namespace Pilot
         vkDestroyShaderModule(m_p_vulkan_context->_device, vert_shader_module, nullptr);
         vkDestroyShaderModule(m_p_vulkan_context->_device, frag_shader_module, nullptr);
     }
+
     void PExperimentalPass::setupDescriptorSet()
     {
         VkDescriptorSetAllocateInfo post_process_global_descriptor_set_alloc_info;
@@ -258,7 +260,7 @@ namespace Pilot
         post_process_descriptor_input_attachment_write_info.dstSet          = _descriptor_infos[0].descriptor_set;
         post_process_descriptor_input_attachment_write_info.dstBinding      = 0;
         post_process_descriptor_input_attachment_write_info.dstArrayElement = 0;
-        post_process_descriptor_input_attachment_write_info.descriptorType  = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT; 
+        post_process_descriptor_input_attachment_write_info.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; 
         post_process_descriptor_input_attachment_write_info.descriptorCount = 1;
         post_process_descriptor_input_attachment_write_info.pImageInfo = &post_process_per_frame_input_attachment_info;
 
@@ -287,12 +289,14 @@ namespace Pilot
         mesh_descriptor_writes_info.pBufferInfo                           = &mesh_perframe_storage_buffer_info;
         //end add ubo info
 
+        LOG_INFO("vkUpdateDescriptorSets #101");
         vkUpdateDescriptorSets(m_p_vulkan_context->_device,
                                sizeof(post_process_descriptor_writes_info) /
                                    sizeof(post_process_descriptor_writes_info[0]),
                                post_process_descriptor_writes_info,
                                0,
                                NULL);
+        LOG_INFO("vkUpdateDescriptorSets #102");
     }
 
     void PExperimentalPass::draw(MeshPerframeStorageBufferObject& m_mesh_perframe_storage_buffer_object)

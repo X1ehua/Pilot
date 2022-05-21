@@ -58,7 +58,12 @@ namespace Pilot
                                      _framebuffer.attachments[i].format,
                                      VK_IMAGE_TILING_OPTIMAL,
                                      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
-                                         VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+                                         // VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+                                         VK_IMAGE_USAGE_SAMPLED_BIT,
+                                         /* 为解决 Validation Error
+                                          * https://ml0bsqxae0.feishu.cn/docs/doccnBDea8xrKENO7VQVf5pJG18#mqGt5N
+                                          * 将 VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT 替换为 VK_IMAGE_USAGE_SAMPLED_BIT
+                                          */
                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                                      _framebuffer.attachments[i].image,
                                      _framebuffer.attachments[i].mem,
@@ -273,25 +278,25 @@ namespace Pilot
         color_grading_pass.preserveAttachmentCount = 0;
         color_grading_pass.pPreserveAttachments    = NULL;
 
-         VkAttachmentReference experimental_pass_input_attachment_reference {};
-         experimental_pass_input_attachment_reference.attachment =
-             &backup_odd_color_attachment_description - attachments;
-         experimental_pass_input_attachment_reference.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        VkAttachmentReference experimental_pass_input_attachment_reference {};
+        experimental_pass_input_attachment_reference.attachment =
+            &backup_odd_color_attachment_description - attachments;
+        experimental_pass_input_attachment_reference.layout     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-         VkAttachmentReference experimental_pass_color_attachment_reference {};
-         experimental_pass_color_attachment_reference.attachment = 
-             &backup_even_color_attachment_description - attachments;
-         experimental_pass_color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        VkAttachmentReference experimental_pass_color_attachment_reference {};
+        experimental_pass_color_attachment_reference.attachment =
+            &backup_even_color_attachment_description - attachments;
+        experimental_pass_color_attachment_reference.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-         VkSubpassDescription& experimental_pass   = subpasses[_main_camera_subpass_experimental];
-         experimental_pass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
-         experimental_pass.inputAttachmentCount    = 1;
-         experimental_pass.pInputAttachments       = &experimental_pass_input_attachment_reference;
-         experimental_pass.colorAttachmentCount    = 1;
-         experimental_pass.pColorAttachments       = &experimental_pass_color_attachment_reference;
-         experimental_pass.pDepthStencilAttachment = NULL;
-         experimental_pass.preserveAttachmentCount = 0;
-         experimental_pass.pPreserveAttachments    = NULL;
+        VkSubpassDescription& experimental_pass   = subpasses[_main_camera_subpass_experimental];
+        experimental_pass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        experimental_pass.inputAttachmentCount    = 1;
+        experimental_pass.pInputAttachments       = &experimental_pass_input_attachment_reference;
+        experimental_pass.colorAttachmentCount    = 1;
+        experimental_pass.pColorAttachments       = &experimental_pass_color_attachment_reference;
+        experimental_pass.pDepthStencilAttachment = NULL;
+        experimental_pass.preserveAttachmentCount = 0;
+        experimental_pass.pPreserveAttachments    = NULL;
 
         VkAttachmentReference ui_pass_color_attachment_reference {};
         // ui_pass_color_attachment_reference.attachment = &backup_even_color_attachment_description - attachments;
@@ -2250,99 +2255,6 @@ namespace Pilot
 
         m_p_vulkan_context->_vkCmdEndRenderPass(m_command_info._current_command_buffer);
     }
-
-    /*
-    void PMainCameraPass::drawForward(PColorGradingPass& color_grading_pass,
-                                      PToneMappingPass&  tone_mapping_pass,
-                                      PUIPass&           ui_pass,
-                                      PCombineUIPass&    combine_ui_pass,
-                                      uint32_t           current_swapchain_image_index,
-                                      void*              ui_state)
-    {
-        {
-            VkRenderPassBeginInfo renderpass_begin_info {};
-            renderpass_begin_info.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderpass_begin_info.renderPass        = _framebuffer.render_pass;
-            renderpass_begin_info.framebuffer       = m_swapchain_framebuffers[current_swapchain_image_index];
-            renderpass_begin_info.renderArea.offset = {0, 0};
-            renderpass_begin_info.renderArea.extent = m_p_vulkan_context->_swapchain_extent;
-
-            VkClearValue clear_values[_main_camera_pass_attachment_count];
-            clear_values[_main_camera_pass_gbuffer_a].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
-            clear_values[_main_camera_pass_gbuffer_b].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
-            clear_values[_main_camera_pass_gbuffer_c].color          = {{0.0f, 0.0f, 0.0f, 0.0f}};
-            clear_values[_main_camera_pass_backup_buffer_odd].color  = {{0.0f, 0.0f, 0.0f, 1.0f}};
-            clear_values[_main_camera_pass_backup_buffer_even].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-            clear_values[_main_camera_pass_depth].depthStencil       = {1.0f, 0};
-            clear_values[_main_camera_pass_swap_chain_image].color   = {{0.0f, 0.0f, 0.0f, 1.0f}};
-            renderpass_begin_info.clearValueCount                    = (sizeof(clear_values) / sizeof(clear_values[0]));
-            renderpass_begin_info.pClearValues                       = clear_values;
-
-            m_p_vulkan_context->_vkCmdBeginRenderPass(
-                m_command_info._current_command_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-        }
-
-        m_p_vulkan_context->_vkCmdNextSubpass(m_command_info._current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        m_p_vulkan_context->_vkCmdNextSubpass(m_command_info._current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        if (m_render_config._enable_debug_untils_label)
-        {
-            VkDebugUtilsLabelEXT label_info = {
-                VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT, NULL, "Forward Lighting", {1.0f, 1.0f, 1.0f, 1.0f}};
-            m_p_vulkan_context->_vkCmdBeginDebugUtilsLabelEXT(m_command_info._current_command_buffer, &label_info);
-        }
-
-        drawMeshLighting();
-        drawSkybox();
-        drawBillboardParticle();
-
-        if (m_render_config._enable_debug_untils_label)
-        {
-            m_p_vulkan_context->_vkCmdEndDebugUtilsLabelEXT(m_command_info._current_command_buffer);
-        }
-
-        m_p_vulkan_context->_vkCmdNextSubpass(m_command_info._current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        tone_mapping_pass.draw();
-
-        m_p_vulkan_context->_vkCmdNextSubpass(m_command_info._current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        color_grading_pass.draw();
-
-        m_p_vulkan_context->_vkCmdNextSubpass(m_command_info._current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        VkClearAttachment clear_attachments[1];
-        clear_attachments[0].aspectMask                  = VK_IMAGE_ASPECT_COLOR_BIT;
-        clear_attachments[0].colorAttachment             = 0;
-        clear_attachments[0].clearValue.color.float32[0] = 0.0;
-        clear_attachments[0].clearValue.color.float32[1] = 0.0;
-        clear_attachments[0].clearValue.color.float32[2] = 0.0;
-        clear_attachments[0].clearValue.color.float32[3] = 0.0;
-        VkClearRect clear_rects[1];
-        clear_rects[0].baseArrayLayer     = 0;
-        clear_rects[0].layerCount         = 1;
-        clear_rects[0].rect.offset.x      = 0;
-        clear_rects[0].rect.offset.y      = 0;
-        clear_rects[0].rect.extent.width  = m_p_vulkan_context->_swapchain_extent.width;
-        clear_rects[0].rect.extent.height = m_p_vulkan_context->_swapchain_extent.height;
-        m_p_vulkan_context->_vkCmdClearAttachments(m_command_info._current_command_buffer,
-                                                   sizeof(clear_attachments) / sizeof(clear_attachments[0]),
-                                                   clear_attachments,
-                                                   sizeof(clear_rects) / sizeof(clear_rects[0]),
-                                                   clear_rects);
-
-        drawAxis();
-
-        ui_pass.draw(ui_state);
-
-        m_p_vulkan_context->_vkCmdNextSubpass(m_command_info._current_command_buffer, VK_SUBPASS_CONTENTS_INLINE);
-
-        combine_ui_pass.draw();
-
-        m_p_vulkan_context->_vkCmdEndRenderPass(m_command_info._current_command_buffer);
-    }
-    */
 
     void PMainCameraPass::drawMeshGbuffer()
     {
