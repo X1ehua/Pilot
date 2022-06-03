@@ -1,5 +1,6 @@
 # 
 set(PRECOMPILE_TOOLS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin")
+# message(STATUS ">>> PRECOMPILE_TOOLS_PATH: ${PRECOMPILE_TOOLS_PATH}")
 set(PILOT_PRECOMPILE_PARAMS_IN_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/precompile/precompile.json.in")
 set(PILOT_PRECOMPILE_PARAMS_PATH "${PRECOMPILE_TOOLS_PATH}/precompile.json")
 configure_file(${PILOT_PRECOMPILE_PARAMS_IN_PATH} ${PILOT_PRECOMPILE_PARAMS_PATH})
@@ -38,6 +39,9 @@ set (PARSER_INPUT ${CMAKE_BINARY_DIR}/parser_header.h)
 ### BUILDING ====================================================================================
 set(PRECOMPILE_TARGET "PilotPreCompile")
 
+message(STATUS "${PRECOMPILE_PARSER} \"${PILOT_PRECOMPILE_PARAMS_PATH}\"  \"${PARSER_INPUT}\"  \"${ENGINE_ROOT_DIR}/source\" ${sys_include} Pilot S 0 0 0")
+
+message("source/_generated/[serializer & reflection]/*.h 暂停自动生成")
 # Called first time when building target 
 add_custom_target(${PRECOMPILE_TARGET} ALL
 
@@ -49,13 +53,13 @@ add_custom_target(${PRECOMPILE_TARGET} ALL
 COMMAND
   ${CMAKE_COMMAND} -E echo "************************************************************* "
 COMMAND
-  ${CMAKE_COMMAND} -E echo "**** [Precompile] BEGIN "
+  ${CMAKE_COMMAND} -E echo "**** [PreCompile] BEGIN "
 COMMAND
   ${CMAKE_COMMAND} -E echo "************************************************************* "
 
-COMMAND
-    ${PRECOMPILE_PARSER} "${PILOT_PRECOMPILE_PARAMS_PATH}"  "${PARSER_INPUT}"  "${ENGINE_ROOT_DIR}/source" ${sys_include} "Pilot" S 0 0 0
+# COMMAND
+#     ${PRECOMPILE_PARSER} "${PILOT_PRECOMPILE_PARAMS_PATH}"  "${PARSER_INPUT}"  "${ENGINE_ROOT_DIR}/source" ${sys_include} "Pilot" S 0 0 0
 ### BUILDING ====================================================================================
 COMMAND
-    ${CMAKE_COMMAND} -E echo "+++ Precompile finished +++"
+    ${CMAKE_COMMAND} -E echo "+++ PreCompile finished +++"
 )

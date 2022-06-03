@@ -24,6 +24,7 @@ namespace Pilot
 
         VkDescriptorSetLayoutBinding post_process_global_layout_bindings[2] = {};
 
+        // subpassInput in_color
         VkDescriptorSetLayoutBinding& post_process_global_layout_input_attachment_binding =
             post_process_global_layout_bindings[0];
         post_process_global_layout_input_attachment_binding.binding         = 0;
@@ -31,6 +32,7 @@ namespace Pilot
         post_process_global_layout_input_attachment_binding.descriptorCount = 1;
         post_process_global_layout_input_attachment_binding.stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+        // color_grading_lut_texture_sampler
         VkDescriptorSetLayoutBinding& post_process_global_layout_LUT_binding = post_process_global_layout_bindings[1];
         post_process_global_layout_LUT_binding.binding                       = 1;
         post_process_global_layout_LUT_binding.descriptorType  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
